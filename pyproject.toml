@@ -7,11 +7,16 @@ authors = ["Arist0craft <dimnktn@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 Django = "^4.0"
-python-telegram-bot = "^13.9"
-django-dotenv = "^1.4.2"
+python-telegram-bot = "^13.10"
+django-environ = "^0.8.1"
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"
+pytest-django = "^4.5.2"
+pytest = "^6.2.5"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE="app.settings"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
