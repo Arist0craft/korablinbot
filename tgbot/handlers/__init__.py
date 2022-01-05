@@ -14,11 +14,11 @@ def start_server(u: Update, cct: CallbackContext):
     try:
         if (
             compute_client.get_instance(compute_client.instance_id).data.lifecycle_state
-            == "RUNNING"
+            in ("STARTING", "RUNNING")
         ):
             logger.info("Instance already started")
             cct.bot.send_message(
-                chat_id, "Сервер уже запущен. Проходи, не задерживайся."
+                chat_id, "Сервер уже на старте или запущен. Проходи, не задерживайся."
             )
 
         else:
@@ -61,7 +61,7 @@ def stop_server(u: Update, cct: CallbackContext):
     try:
         if (
             compute_client.get_instance(compute_client.instance_id).data.lifecycle_state
-            == "STOPPED"
+            in ("STOPPED", "STOPPING")
         ):
             logger.info("Instance already stopped")
             cct.bot.send_message(

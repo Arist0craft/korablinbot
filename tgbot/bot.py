@@ -3,12 +3,15 @@ import sys
 import telegram as tg
 from telegram.ext import CommandHandler, Dispatcher, Updater
 
-from .apps import TgBotConfig
+from app.settings import DEBUG, TGBOT_SETTINGS
 from .handlers import *
 from utils import setup_logger
 
 
 logger = setup_logger(__name__)
+if DEBUG:
+    logger.setLevel("DEBUG")
+
 handlers = [
     {
         "type": CommandHandler,
@@ -27,7 +30,7 @@ handlers = [
 
 def setup_bot() -> tg.Bot:
     logger.info("Start setup bot")
-    tgbot: tg.Bot = tg.Bot(token=TgBotConfig.bot_token)
+    tgbot: tg.Bot = tg.Bot(token=TGBOT_SETTINGS.get("TOKEN"))
     try:
         logger.info("Checking API Token")
         tgbot.get_me()
@@ -63,15 +66,27 @@ def setup_dispatcher(dp: Dispatcher) -> Dispatcher:
 
 
 def run_polling():
-    if not TgBotConfig.debug:
+    if not TGBOT_SETTINGS.get("DEBUG"):
         raise ValueError("Don't use pooling mode in production")
-    updater = Updater(TgBotConfig.bot_token, use_context=True)
+    updater = Updater(TGBOT_SETTINGS.get("TOKEN"), use_context=True)
     setup_dispatcher(updater.dispatcher)
     logger.info("Running polling mode")
     updater.start_polling()
     updater.idle()
 
 
-if not TgBotConfig.debug:
+if not TGBOT_SETTINGS.get("DEBUG"):
     bot: tg.Bot = setup_bot()
     dispatcher: Dispatcher = setup_dispatcher(Dispatcher(bot, None, 0))
+
+    webhook_url = (
+        TGBOT_SETTINGS.get("HOST")
+        if TGBOT_SETTINGS.get("HOST")[-1] == "/"
+        else TGBOT_SETTINGS.get("HOST") + "/"
+    )
+    webhook_url += TGBOT_SETTINGS.get("TOKEN") + "/" + "webhook/"
+    logger.debug(f"Setting webhook to {webhook_url}")
+    if bot.set_webhook(webhook_url):
+        logger.info("Webhook successfully set")
+    else:
+        logger.error("Wasn't set")

@@ -18,7 +18,13 @@ from utils import setup_logger
 logger = setup_logger(__name__)
 
 # Set default values to environmental variables
-env = environ.Env(DEBUG=(bool, True))
+env = environ.Env(
+    DEBUG=(bool, True),
+    TGBOT_DEBUG=(bool, True),
+    MC_PORT=(int, 25565),
+    MC_CONNECTION_TRIES=(int, 10),
+    MC_CONNECTION_WAIT=(int, 30)
+)
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,13 +37,24 @@ if (env_file_path := Path(BASE_DIR / ".env")).exists():
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
+# Set tgbot settings
+TGBOT_SETTINGS = {
+    "DEBUG": env("TGBOT_DEBUG"),
+    "HOST": env("TGBOT_HOST"),
+    "TOKEN": env("TGBOT_TOKEN"),
+    "MC_PORT": env("MC_PORT"),
+    "MC_HOST": env("MC_HOST"),
+    "MC_CONNECTION_TRIES": env("MC_CONNECTION_TRIES"),
+    "MC_CONNECTION_WAIT": env("MC_CONNECTION_WAIT"),
+}
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY: str = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG: bool = env("DEBUG")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -54,6 +71,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -128,7 +146,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field

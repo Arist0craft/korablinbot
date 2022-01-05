@@ -16,9 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from tgbot.apps import TgBotConfig
+from .settings import TGBOT_SETTINGS
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path(f"{TgBotConfig.bot_token}/", include('tgbot.urls')),
+    path(TGBOT_SETTINGS.get("TOKEN") + "/", include('tgbot.urls')),
 ]
