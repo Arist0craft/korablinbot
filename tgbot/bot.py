@@ -4,7 +4,6 @@ import telegram as tg
 from telegram.ext import CommandHandler, Dispatcher, Updater
 
 from .apps import TgBotConfig
-from app.settings import DEBUG
 from .handlers import *
 from utils import setup_logger
 
@@ -47,8 +46,8 @@ def setup_bot() -> tg.Bot:
             ]
         ):
             raise tg.error.BadRequest("Commands weren't set, bad request")
-
         return tgbot
+
     except tg.error.Unauthorized as err:
         logger.exception(err)
         sys.exit(1)
@@ -64,7 +63,7 @@ def setup_dispatcher(dp: Dispatcher) -> Dispatcher:
 
 
 def run_polling():
-    if not DEBUG:
+    if not TgBotConfig.debug:
         raise ValueError("Don't use pooling mode in production")
     updater = Updater(TgBotConfig.bot_token, use_context=True)
     setup_dispatcher(updater.dispatcher)
@@ -73,5 +72,6 @@ def run_polling():
     updater.idle()
 
 
-bot: tg.Bot = setup_bot()
-dispatcher: Dispatcher = setup_dispatcher(Dispatcher(bot, None, 0))
+if not TgBotConfig.debug:
+    bot: tg.Bot = setup_bot()
+    dispatcher: Dispatcher = setup_dispatcher(Dispatcher(bot, None, 0))
