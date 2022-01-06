@@ -1,0 +1,7 @@
+logs/
+*venv/
+*sqlite*
+Dockerfile
+Makefile
+dev.env
+staticfiles/

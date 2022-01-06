@@ -20,17 +20,20 @@ logger = setup_logger(__name__)
 # Set default values to environmental variables
 env = environ.Env(
     DEBUG=(bool, True),
-    TGBOT_DEBUG=(bool, True),
     MC_PORT=(int, 25565),
     MC_CONNECTION_TRIES=(int, 10),
-    MC_CONNECTION_WAIT=(int, 30)
+    MC_CONNECTION_WAIT=(int, 30),
+    REDIS_URL=(str, "redis://redis:6379"),
+    SECRET_KEY=(str, "django-insecure-p-!4&^*$s^bp1rr80emp5b*ixt)4hp$(kwha=x09^q%(+tw#(s"),
+    TGBOT_DEBUG=(bool, True),
+    USE_CELERY=(bool, True),
 )
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
-# Read .env if exists
+
 if (env_file_path := Path(BASE_DIR / ".env")).exists():
     environ.Env.read_env(env_file_path)
 
@@ -153,3 +156,16 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Celery configuration
+USE_CELERY: bool = env("USE_CELERY")
+REDIS_URL: str = env("REDIS_URL")
+BROKER_URL: str = REDIS_URL
+CELERY_BROKER_URL: str = REDIS_URL
+CELERY_RESULT_BACKEND: str = REDIS_URL
+CELERY_ACCEPT_CONTENT: list = ['application/json']
+CELERY_TASK_SERIALIZER: str = 'json'
+CELERY_RESULT_SERIALIZER: str = 'json'
+CELERY_TIMEZONE: str = TIME_ZONE
+CELERY_TASK_DEFAULT_QUEUE: str = 'default'

@@ -1,16 +1,21 @@
 import sys
+from logging import Logger
 
+from celery.utils.log import get_task_logger
 import telegram as tg
 from telegram.ext import CommandHandler, Dispatcher, Updater
 
 from app.settings import DEBUG, TGBOT_SETTINGS
-from .handlers import *
+from app.celery import app
+from .handlers import start_server, stop_server
 from utils import setup_logger
 
 
-logger = setup_logger(__name__)
+task_logger: Logger = get_task_logger(__name__)
+logger: Logger = setup_logger(__name__)
 if DEBUG:
     logger.setLevel("DEBUG")
+
 
 handlers = [
     {
@@ -77,16 +82,9 @@ def run_polling():
 
 if not TGBOT_SETTINGS.get("DEBUG"):
     bot: tg.Bot = setup_bot()
-    dispatcher: Dispatcher = setup_dispatcher(Dispatcher(bot, None, 0))
+    dispatcher: Dispatcher = setup_dispatcher(Dispatcher(bot, None, 1))
 
-    webhook_url = (
-        TGBOT_SETTINGS.get("HOST")
-        if TGBOT_SETTINGS.get("HOST")[-1] == "/"
-        else TGBOT_SETTINGS.get("HOST") + "/"
-    )
-    webhook_url += TGBOT_SETTINGS.get("TOKEN") + "/" + "webhook/"
-    logger.debug(f"Setting webhook to {webhook_url}")
-    if bot.set_webhook(webhook_url):
-        logger.info("Webhook successfully set")
-    else:
-        logger.error("Wasn't set")
+    @app.task(ignore_result=True)
+    def process_update(update_data: dict):
+        task_logger.info("Handling update")
+        dispatcher.process_update(tg.Update.de_json(update_data, dispatcher.bot))

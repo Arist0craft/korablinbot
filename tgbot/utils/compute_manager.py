@@ -78,5 +78,5 @@ class ComputeEngineManager:
 config_file_path = Path(__file__).resolve().parent.parent.parent / "secrets/oci.cfg"
 compute_client = ComputeEngineManager.from_config(config_file_path)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(compute_client.get_instance(compute_client.instance_id).data)
