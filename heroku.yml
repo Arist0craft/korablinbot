@@ -1,0 +1,13 @@
+build:
+  docker:
+    web: Dockerfile
+run:
+    web: >
+      sh -c "poetry run python setup_webhook.py &&
+             poetry run python manage.py collectstatic --noinput &&
+             poetry run python manage.py migrate &&
+             poetry run gunicorn --workers=1 --bind=0.0.0.0:${PORT} app.wsgi"
+    worker:
+      command:
+        - poetry run celery -A app worker -l INFO
+      image: web

@@ -29,7 +29,6 @@ env = environ.Env(
     USE_CELERY=(bool, True),
 )
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
@@ -39,17 +38,6 @@ if (env_file_path := Path(BASE_DIR / ".env")).exists():
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
-
-# Set tgbot settings
-TGBOT_SETTINGS = {
-    "DEBUG": env("TGBOT_DEBUG"),
-    "HOST": env("TGBOT_HOST"),
-    "TOKEN": env("TGBOT_TOKEN"),
-    "MC_PORT": env("MC_PORT"),
-    "MC_HOST": env("MC_HOST"),
-    "MC_CONNECTION_TRIES": env("MC_CONNECTION_TRIES"),
-    "MC_CONNECTION_WAIT": env("MC_CONNECTION_WAIT"),
-}
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY: str = env("SECRET_KEY")
@@ -157,6 +145,16 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Set tgbot settings
+TGBOT_SETTINGS = {
+    "DEBUG": env("TGBOT_DEBUG"),
+    "HOST": env("TGBOT_HOST"),
+    "TOKEN": env("TGBOT_TOKEN"),
+    "MC_PORT": env("MC_PORT"),
+    "MC_HOST": env("MC_HOST"),
+    "MC_CONNECTION_TRIES": env("MC_CONNECTION_TRIES"),
+    "MC_CONNECTION_WAIT": env("MC_CONNECTION_WAIT"),
+}
 
 # Celery configuration
 USE_CELERY: bool = env("USE_CELERY")
@@ -169,3 +167,12 @@ CELERY_TASK_SERIALIZER: str = 'json'
 CELERY_RESULT_SERIALIZER: str = 'json'
 CELERY_TIMEZONE: str = TIME_ZONE
 CELERY_TASK_DEFAULT_QUEUE: str = 'default'
+
+OCI_SETTING = {
+    "user": env("OCI_USER"),
+    "fingerprint": env("OCI_FINGERPRINT"),
+    "tenancy": env("OCI_TENANCY"),
+    "region": env("OCI_REGION"),
+    "key_content": env.str("OCI_KEY_CONTENT", multiline=True),
+    "instance_id": env("OCI_INSTANCE_ID"),
+}
