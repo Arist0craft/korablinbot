@@ -7,6 +7,8 @@ from oci.config import validate_config
 from oci.core import ComputeClient
 from oci.exceptions import ServiceError
 
+from app.settings import OCI_SETTING
+
 START = "START"
 SOFTSTOP = "SOFTSTOP"
 
@@ -16,6 +18,7 @@ class ComputeEngineManager:
     instance_id: str
 
     def __init__(self, config: dict):
+        validate_config(config)
         self.client = ComputeClient(config)
         instance_id = config.get("instance_id")
         if self.get_instance(instance_id):
@@ -43,7 +46,6 @@ class ComputeEngineManager:
         config["key_file"] = (
             Path(config_path).resolve().parent / config["key_file"]
         ).absolute()
-        validate_config(config)
         return cls(config)
 
     def start_instance(self):
@@ -75,8 +77,4 @@ class ComputeEngineManager:
             raise err
 
 
-config_file_path = Path(__file__).resolve().parent.parent.parent / "secrets/oci.cfg"
-compute_client = ComputeEngineManager.from_config(config_file_path)
-
-if __name__ == "__main__":
-    print(compute_client.get_instance(compute_client.instance_id).data)
+compute_client = ComputeEngineManager(OCI_SETTING)
